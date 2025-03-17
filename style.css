@@ -1,0 +1,40 @@
+/* style.css */
+
+/* Modal fade transition */
+.modal {
+  transition: opacity 0.25s ease;
+}
+
+/* Basic font settings for the body */
+body { 
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Container for the bar chart visualization */
+.chart-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+
+/* Smooth transition for bar height changes */
+.bar {
+  transition: height 0.3s ease;
+}
+
+/* Style for each calendar cell with a light gray border */
+.calendar-cell {
+  position: relative;
+  min-height: 80px;
+  border: 1px solid #e0e0e0;
+  padding: 5px;
+}
+
+/* Styling for events within calendar cells */
+.calendar-event {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-left: 3px solid #3b82f6;
+  padding: 3px;
+  margin-bottom: 3px;
+  font-size: 0.75rem;
+}
