@@ -1,6 +1,6 @@
 // script.js
 
-// Arrays to store job applications and calendar events.
+// Arrays to store job applications and custom calendar events.
 let applications = [];
 let calendarEvents = [];
 
@@ -70,6 +70,23 @@ function showEventModal() {
 // Close Add Event Modal.
 function closeEventModal() {
   const modal = document.getElementById('eventModal');
+  modal.classList.add('opacity-0', 'pointer-events-none');
+}
+
+// Open Edit Event Modal for a custom calendar event.
+function editCalendarEvent(eventIndex) {
+  const ev = calendarEvents[eventIndex];
+  document.getElementById('editEventIndex').value = eventIndex;
+  document.getElementById('editEventDate').value = ev.date;
+  document.getElementById('editEventCompany').value = ev.company;
+  document.getElementById('editEventDescription').value = ev.description;
+  const modal = document.getElementById('editEventModal');
+  modal.classList.remove('opacity-0', 'pointer-events-none');
+}
+
+// Close Edit Event Modal.
+function closeEditEventModal() {
+  const modal = document.getElementById('editEventModal');
   modal.classList.add('opacity-0', 'pointer-events-none');
 }
 
@@ -149,6 +166,21 @@ document.getElementById('eventForm').addEventListener('submit', function(e) {
   this.reset();
 });
 
+// Handle Edit Event Form submission.
+document.getElementById('editEventForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const index = formData.get('editEventIndex');
+  
+  calendarEvents[index].date = formData.get('editEventDate');
+  calendarEvents[index].company = formData.get('editEventCompany');
+  calendarEvents[index].description = formData.get('editEventDescription');
+  
+  updateVisualizations();
+  closeEditEventModal();
+  this.reset();
+});
+
 /* ---------------------------
    Delete File Functions
 --------------------------- */
@@ -165,6 +197,18 @@ function deleteCL() {
   const index = document.getElementById('editIndex').value;
   applications[index].cl = '';
   document.getElementById('currentCL').textContent = 'No file';
+}
+
+/* ---------------------------
+   Delete Calendar Event Function
+--------------------------- */
+
+// Delete a custom calendar event.
+function deleteCalendarEvent(index) {
+  // Remove the event from the calendarEvents array.
+  calendarEvents.splice(index, 1);
+  // Update the calendar visualization.
+  updateVisualizations();
 }
 
 /* ---------------------------
@@ -235,7 +279,7 @@ function drawBarChart() {
   `).join('');
 }
 
-// Generate calendar view with job deadlines and events.
+// Generate calendar view with job deadlines and custom events.
 function generateCalendar() {
   const calendar = document.getElementById('calendar');
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -244,7 +288,7 @@ function generateCalendar() {
   // Create headers for days.
   days.forEach(day => {
     const dayHeader = document.createElement('div');
-    dayHeader.className = 'text-center font-semibold text-gray-600';
+    dayHeader.className = 'text-center font-semibold text-gray-300';
     dayHeader.textContent = day;
     calendar.appendChild(dayHeader);
   });
@@ -267,10 +311,10 @@ function generateCalendar() {
     
     const dateNumber = document.createElement('div');
     dateNumber.textContent = i;
-    dateNumber.className = 'text-sm font-semibold mb-1';
+    dateNumber.className = 'text-sm font-semibold mb-1 text-gray-200';
     dateCell.appendChild(dateNumber);
     
-    // Build the date string in YYYY-MM-DD format.
+    // Build the date string (YYYY-MM-DD).
     const dateString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
     
     // Show job application deadlines for this day.
@@ -279,30 +323,49 @@ function generateCalendar() {
       const eventDiv = document.createElement('div');
       eventDiv.className = 'calendar-event';
       eventDiv.innerHTML = `
-        <div class="font-bold">${event.company}</div>
-        <div class="text-xs">${event.status}</div>
+        <div class="font-bold text-gray-100">${event.company}</div>
+        <div class="text-xs text-gray-200">${event.status}</div>
       `;
       dateCell.appendChild(eventDiv);
     });
     
-    // Show custom calendar events for this day.
-    const customEvents = calendarEvents.filter(ev => ev.date === dateString);
-    customEvents.forEach(ev => {
-      const evDiv = document.createElement('div');
-      evDiv.className = 'calendar-event';
-      evDiv.innerHTML = `<div class="font-bold">${ev.company}</div><div class="text-xs">${ev.description}</div>`;
-      dateCell.appendChild(evDiv);
+    // Show custom calendar events with edit/delete
+    calendarEvents.forEach((ev, i) => {
+      if (ev.date === dateString) {
+        const evDiv = document.createElement('div');
+        evDiv.className = 'calendar-event';
+        evDiv.innerHTML = `
+          <div class="flex justify-between items-center">
+            <div>
+              <div class="font-bold text-gray-100">${ev.company}</div>
+              <div class="text-xs text-gray-200">${ev.description}</div>
+            </div>
+            <div class="flex space-x-2">
+              <button onclick="editCalendarEvent(${i})" class="text-blue-400 hover:text-blue-300">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button onclick="deleteCalendarEvent(${i})" class="text-red-400 hover:text-red-300">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        dateCell.appendChild(evDiv);
+      }
     });
     
     calendar.appendChild(dateCell);
   }
 }
 
-// Update visualizations (bar chart and calendar).
+/* ---------------------------
+   Update Visualizations
+--------------------------- */
 function updateVisualizations() {
   drawBarChart();
   generateCalendar();
 }
 
-// Initial call to update visualizations.
+// On page load, update table & visualizations
+updateTable();
 updateVisualizations();
