@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <!-- Basic page setup -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Application Organiser</title>
+
+    <!-- Tailwind CSS for utility classes (Warning: not recommended for production) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js for the pie chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Bootstrap Icons for illustrative icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="script.js" defer></script>
+  </head>
+
+  <body class="bg-gray-900 text-gray-100">
+    <!-- Main Container -->
+    <div class="container mx-auto px-4 py-8">
+      <!-- Header Section -->
+      <div class="mb-8">
+        <header>
+          <img src="Assets/JobX Logo.png" alt="Job Application Tracker System Logo" style="max-width: 200px;">
+        </header>
+        <!-- Button to open the New Application Modal -->
+        <button onclick="showModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center">
+          <i class="bi bi-plus mr-2"></i> New Application
+        </button>
+      </div>
+
+      <!-- Main Table with horizontal scrolling -->
+      <div class="bg-gray-800 rounded-lg shadow overflow-x-auto mb-8">
+        <table class="min-w-full">
+          <thead>
+            <tr class="bg-gray-700 border-b">
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider whitespace-nowrap">
+                Company <i class="bi bi-building"></i>
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider whitespace-nowrap">
+                Status <i class="bi bi-check-circle"></i>
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider whitespace-nowrap">
+                Assessment Status <i class="bi bi-clipboard-check"></i>
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider whitespace-nowrap">
+                Job Type <i class="bi bi-briefcase"></i>
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider whitespace-nowrap">
+                Job Role <i class="bi bi-person"></i>
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider whitespace-nowrap">
+                Deadline <i class="bi bi-calendar-x"></i>
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider whitespace-nowrap">
+                Applied On <i class="bi bi-calendar-check"></i>
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider whitespace-nowrap">
+                Job Description <i class="bi bi-card-text"></i>
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider whitespace-nowrap">
+                Job URL <i class="bi bi-link-45deg"></i>
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider whitespace-nowrap">
+                CV <i class="bi bi-paperclip"></i>
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider whitespace-nowrap">
+                Cover Letter <i class="bi bi-paperclip"></i>
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider whitespace-nowrap">
+                Notes <i class="bi bi-sticky"></i>
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider whitespace-nowrap">
+                Actions <i class="bi bi-gear"></i>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="applicationTable" class="divide-y divide-gray-600">
+            <!-- Table rows will be generated dynamically -->
+          </tbody>
+        </table>
+        <div class="p-4">
+          <button id="loadMore" class="text-blue-500 hover:text-blue-400">Load More</button>
+        </div>
+      </div>
+
+      <!-- Visualization Section: Bar Chart, Pie Chart and Calendar -->
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- Left Column: Bar Chart and Pie Chart -->
+        <div class="space-y-8">
+          <!-- Bar Chart Section -->
+          <div class="bg-gray-800 p-6 rounded-lg shadow">
+            <h2 class="text-2xl font-extrabold bg-gradient-to-r from-green-400 to-blue-500 text-transparent bg-clip-text mb-4">
+              Applied Roles Overview
+            </h2>
+            <div class="chart-container" id="barChart"></div>
+          </div>
+          <!-- Pie Chart Section -->
+          <div class="bg-gray-800 p-6 rounded-lg shadow">
+            <h2 class="text-2xl font-extrabold bg-gradient-to-r from-green-400 to-blue-500 text-transparent bg-clip-text mb-4">
+              Applications Distribution
+            </h2>
+            <canvas id="pieChart"></canvas>
+          </div>
+        </div>
+        <!-- Right Column: Calendar -->
+        <div class="bg-gray-800 p-6 rounded-lg shadow">
+          <!-- Calendar Heading with Gradient Text -->
+          <h2 class="text-2xl font-extrabold bg-gradient-to-r from-green-400 to-blue-500 text-transparent bg-clip-text mb-4">
+            Calendar
+          </h2>
+          <!-- Calendar Navigation Controls -->
+          <div id="calendarNav" class="flex justify-between items-center mb-4">
+            <button id="prevMonth" class="bg-gray-700 text-white px-2 py-1 rounded">Prev Month</button>
+            <span id="currentMonthYear" class="text-xl font-semibold text-gray-300"></span>
+            <button id="nextMonth" class="bg-gray-700 text-white px-2 py-1 rounded">Next Month</button>
+          </div>
+          <!-- Extra button for adding events -->
+          <div class="flex justify-end mb-4">
+            <button onclick="showEventModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+              <i class="bi bi-plus"></i> Add Event
+            </button>
+          </div>
+          <!-- Calendar Grid -->
+          <div id="calendar" class="grid grid-cols-7 gap-1"></div>
+        </div>
+      </div>
+
+      <!-- Footer Section -->
+      <footer class="mt-8 text-center text-gray-400">
+        <p>&copy; 2025 All rights reserved</p>
+      </footer>
+    </div>
+
+    <!-- Modals -->
+    <!-- New Application Modal -->
+    <div id="modal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center">
+      <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-70"></div>
+      <div class="modal-container bg-gray-800 w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto max-h-[80vh]">
+        <div class="modal-content py-4 text-left px-6">
+          <div class="flex justify-between items-center pb-3">
+            <p class="text-2xl font-bold text-gray-100">New Application</p>
+            <button onclick="closeModal()" class="modal-close">
+              <i class="bi bi-x-lg text-gray-100"></i>
+            </button>
+          </div>
+          <!-- Form uses enctype to support file uploads -->
+          <form id="applicationForm" action="addApplication.php" method="POST" enctype="multipart/form-data" class="space-y-4">
+            <!-- Company Name -->
+            <div>
+              <label class="block text-gray-300">Company Name</label>
+              <input type="text" name="company" placeholder="Enter company name" class="mt-1 block w-full rounded-md border border-gray-600 shadow-sm p-2 bg-gray-700 text-gray-100" required>
+            </div>
+            <!-- Status -->
+            <div>
+              <label class="block text-gray-300">Status</label>
+              <select name="status" class="mt-1 block w-full rounded-md border border-gray-600 shadow-sm p-2 bg-gray-700 text-gray-100" required>
+                <option>Ready to Apply</option>
+                <option>Applied</option>
+                <option>Interviewing</option>
+                <option>Offered</option>
+                <option>Rejected</option>
+              </select>
+            </div>
+            <!-- Assessment Status -->
+            <div>
+              <label class="block text-gray-300">Assessment Status</label>
+              <select name="assessmentStatus" class="mt-1 block w-full rounded-md border border-gray-600 shadow-sm p-2 bg-gray-700 text-gray-100" required>
+                <option>Not Started</option>
+                <option>In Progress</option>
+                <option>Completed</option>
+              </select>
+            </div>
+            <!-- Job Type -->
+            <div>
+              <label class="block text-gray-300">Job Type</label>
+              <select name="jobType" class="mt-1 block w-full rounded-md border border-gray-600 shadow-sm p-2 bg-gray-700 text-gray-100" required>
+                <option>Full-time</option>
+                <option>Part-time</option>
+                <option>Internship</option>
+                <option>Contract</option>
+                <option>Remote</option>
+                <option>Freelance</option>
+              </select>
+            </div>
+            <!-- Job Role -->
+            <div>
+              <label class="block text-gray-300">Job Role</label>
+              <input type="text" name="jobRole" placeholder="Enter job role" class="mt-1 block w-full rounded-md border border-gray-600 shadow-sm p-2 bg-gray-700 text-gray-100" required>
+            </div>
+            <!-- Deadline -->
+            <div>
+              <label class="block text-gray-300">Deadline</label>
+              <input type="date" name="deadline" placeholder="YYYY-MM-DD" class="mt-1 block w-full rounded-md border border-gray-600 shadow-sm p-2 bg-gray-700 text-gray-100">
+            </div>
+            <!-- Applied On -->
+            <div>
+              <label class="block text-gray-300">Applied On</label>
+              <input type="date" name="appliedOn" placeholder="YYYY-MM-DD" class="mt-1 block w-full rounded-md border border-gray-600 shadow-sm p-2 bg-gray-700 text-gray-100">
+            </div>
+            <!-- Job Description -->
+            <div>
+              <label class="block text-gray-300">Job Description</label>
+              <textarea name="jobDescription" placeholder="Enter job description" rows="3" class="mt-1 block w-full rounded-md border border-gray-600 shadow-sm p-2 bg-gray-700 text-gray-100"></textarea>
+            </div>
+            <!-- Job URL -->
+            <div>
+              <label class="block text-gray-300">Job URL</label>
+              <input type="url" name="jobUrl" placeholder="https://example.com" class="mt-1 block w-full rounded-md border border-gray-600 shadow-sm p-2 bg-gray-700 text-gray-100">
+            </div>
+            <!-- CV -->
+            <div>
+              <label class="block text-gray-300">CV</label>
+              <input type="file" name="cv" accept=".pdf" class="mt-1 block w-full border border-gray-600 bg-gray-700">
+              <p class="text-xs text-gray-400">No file chosen</p>
+            </div>
+            <!-- Cover Letter -->
+            <div>
+              <label class="block text-gray-300">Cover Letter</label>
+              <input type="file" name="cl" accept=".pdf,.doc,.docx" class="mt-1 block w-full border border-gray-600 bg-gray-700">
+              <p class="text-xs text-gray-400">No file chosen</p>
+            </div>
+            <!-- Save Application Button -->
+            <div class="flex justify-end pt-2">
+              <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                Save Application
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Application Modal -->
+    <div id="editModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center">
+      <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-70"></div>
+      <div class="modal-container bg-gray-800 w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto max-h-[80vh]">
+        <div class="modal-content py-4 text-left px-6">
+          <div class="flex justify-between items-center pb-3">
+            <p class="text-2xl font-bold text-gray-100">Edit Application</p>
+            <button onclick="closeEditModal()" class="modal-close">
+              <i class="bi bi-x-lg text-gray-100"></i>
+            </button>
+          </div>
+          <form id="editApplicationForm" class="space-y-4">
+            <input type="hidden" name="editIndex" id="editIndex">
+            <!-- Edit fields for application (unchanged) -->
+            <div class="flex justify-end pt-2">
+              <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                Update Application
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Job Description Modal -->
+    <div id="descModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center">
+      <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-70"></div>
+      <div class="modal-container bg-gray-800 w-11/12 md:max-w-lg mx-auto rounded shadow-lg z-50 overflow-y-auto">
+        <div class="modal-content py-4 text-left px-6">
+          <div class="flex justify-between items-center pb-3">
+            <p class="text-2xl font-bold text-gray-100">Job Description</p>
+            <button onclick="closeDescModal()" class="modal-close">
+              <i class="bi bi-x-lg text-gray-100"></i>
+            </button>
+          </div>
+          <div id="descContent" class="p-4 text-gray-200"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Event Modal -->
+    <div id="eventModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center">
+      <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-70"></div>
+      <div class="modal-container bg-gray-800 w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
+        <div class="modal-content py-4 text-left px-6">
+          <div class="flex justify-between items-center pb-3">
+            <p class="text-2xl font-bold text-gray-100">Add Event</p>
+            <button onclick="closeEventModal()" class="modal-close">
+              <i class="bi bi-x-lg text-gray-100"></i>
+            </button>
+          </div>
+          <form id="eventForm" class="space-y-4">
+            <div>
+              <label class="block text-gray-300">Event Date</label>
+              <input type="date" name="eventDate" class="mt-1 block w-full rounded-md border border-gray-600 shadow-sm p-2 bg-gray-700 text-gray-100" required>
+            </div>
+            <div>
+              <label class="block text-gray-300">Company Name</label>
+              <input type="text" name="eventCompany" class="mt-1 block w-full rounded-md border border-gray-600 shadow-sm p-2 bg-gray-700 text-gray-100" required>
+            </div>
+            <div>
+              <label class="block text-gray-300">Job Description</label>
+              <textarea name="eventDescription" class="mt-1 block w-full rounded-md border border-gray-600 shadow-sm p-2 bg-gray-700 text-gray-100" rows="3" required></textarea>
+            </div>
+            <div class="flex justify-end pt-2">
+              <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                Save Event
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Event Modal -->
+    <div id="editEventModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center">
+      <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-70"></div>
+      <div class="modal-container bg-gray-800 w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
+        <div class="modal-content py-4 text-left px-6">
+          <div class="flex justify-between items-center pb-3">
+            <p class="text-2xl font-bold text-gray-100">Edit Event</p>
+            <button onclick="closeEditEventModal()" class="modal-close">
+              <i class="bi bi-x-lg text-gray-100"></i>
+            </button>
+          </div>
+          <form id="editEventForm" class="space-y-4">
+            <input type="hidden" name="editEventIndex" id="editEventIndex">
+            <div>
+              <label class="block text-gray-300">Event Date</label>
+              <input type="date" name="editEventDate" id="editEventDate" class="mt-1 block w-full rounded-md border border-gray-600 shadow-sm p-2 bg-gray-700 text-gray-100" required>
+            </div>
+            <div>
+              <label class="block text-gray-300">Company Name</label>
+              <input type="text" name="editEventCompany" id="editEventCompany" class="mt-1 block w-full rounded-md border border-gray-600 shadow-sm p-2 bg-gray-700 text-gray-100" required>
+            </div>
+            <div>
+              <label class="block text-gray-300">Job Description</label>
+              <textarea name="editEventDescription" id="editEventDescription" class="mt-1 block w-full rounded-md border border-gray-600 shadow-sm p-2 bg-gray-700 text-gray-100" rows="3" required></textarea>
+            </div>
+            <div class="flex justify-end pt-2">
+              <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                Update Event
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>

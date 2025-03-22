@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JobX - Login / Register</title>
+    <!-- Tailwind CSS for development (install via PostCSS for production) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Bootstrap Icons (optional) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script>
+      // Toggle between login and register forms.
+      function showForm(formType) {
+        if (formType === 'login') {
+          document.getElementById('loginFormContainer').classList.remove('hidden');
+          document.getElementById('registerFormContainer').classList.add('hidden');
+          document.getElementById('formToggleText').textContent = "Don't have an account? ";
+          document.getElementById('formToggleLink').textContent = "Create one";
+          document.getElementById('formToggleLink').setAttribute('onclick', "showForm('register')");
+        } else {
+          document.getElementById('registerFormContainer').classList.remove('hidden');
+          document.getElementById('loginFormContainer').classList.add('hidden');
+          document.getElementById('formToggleText').textContent = "Already have an account? ";
+          document.getElementById('formToggleLink').textContent = "Login";
+          document.getElementById('formToggleLink').setAttribute('onclick', "showForm('login')");
+        }
+      }
+      
+      document.addEventListener("DOMContentLoaded", function() {
+        // Show login form by default
+        showForm('login');
+      });
+    </script>
+  </head>
+  <body class="bg-cover bg-center" style="background-image: url('Assets/Emerald.jpg');">
+    <div class="flex items-center justify-center min-h-screen">
+      <div class="bg-gray-800 bg-opacity-80 p-8 rounded-lg shadow-lg max-w-md w-full">
+        <div class="flex justify-center mb-4">
+          <img src="Assets/JobX Logo.png" alt="JobX Logo" class="w-32 h-auto" />
+        </div>
+        <!-- Container for both forms -->
+        <div id="loginFormContainer">
+          <h2 class="text-2xl text-center text-white font-bold mb-6">Login to JobX</h2>
+          <form action="login.php" method="POST" id="loginForm">
+            <div class="mb-4">
+              <label for="loginEmail" class="block text-gray-300 mb-2">Email</label>
+              <input type="email" id="loginEmail" name="email" placeholder="you@example.com" class="w-full px-3 py-2 rounded-md border border-gray-600 bg-gray-700 text-white" required>
+            </div>
+            <div class="mb-6">
+              <label for="loginPassword" class="block text-gray-300 mb-2">Password</label>
+              <input type="password" id="loginPassword" name="password" placeholder="Your password" class="w-full px-3 py-2 rounded-md border border-gray-600 bg-gray-700 text-white" required>
+            </div>
+            <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-md">Login</button>
+          </form>
+        </div>
+        
+        <div id="registerFormContainer" class="hidden">
+          <h2 class="text-2xl text-center text-white font-bold mb-6">Create a New Account</h2>
+          <form action="register.php" method="POST" id="registerForm">
+            <div class="mb-4">
+              <label for="registerEmail" class="block text-gray-300 mb-2">Email</label>
+              <input type="email" id="registerEmail" name="email" placeholder="you@example.com" class="w-full px-3 py-2 rounded-md border border-gray-600 bg-gray-700 text-white" required>
+            </div>
+            <div class="mb-6">
+              <label for="registerPassword" class="block text-gray-300 mb-2">Password</label>
+              <input type="password" id="registerPassword" name="password" placeholder="Your password" class="w-full px-3 py-2 rounded-md border border-gray-600 bg-gray-700 text-white" required>
+            </div>
+            <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-md">Register</button>
+          </form>
+        </div>
+        
+        <!-- Toggle link -->
+        <div class="mt-4 text-center">
+          <span id="formToggleText"></span>
+          <a href="javascript:void(0)" id="formToggleLink" class="text-blue-400 hover:underline"></a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
